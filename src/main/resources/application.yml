@@ -18,3 +18,13 @@ spring:
     platform: mysql
   aop:
     proxy-target-class: true
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    maxTotal: 200
+    pool:
+      max-active: 8
+      min-idle: 0
+      max-idle: 8
+      max-wait: 10000
+    timeout: 0

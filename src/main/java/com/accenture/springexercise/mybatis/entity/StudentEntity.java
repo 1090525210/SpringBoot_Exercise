@@ -14,6 +14,10 @@ public class StudentEntity {
 	
 	
 	public StudentEntity() {}
+	public StudentEntity(int id, String name) {
+		this.studentid=id;
+		this.name =name;
+	}
 	
 	public int getStudentid() {
 		return studentid;
