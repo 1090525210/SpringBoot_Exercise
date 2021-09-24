@@ -19,6 +19,17 @@ public class StudentEntity {
 		this.name =name;
 	}
 	
+	public StudentEntity(int studentid, String name, int age, int createuserId, String createdateTime, int updateuserId,
+			String updatedateTime) {
+		super();
+		this.studentid = studentid;
+		this.name = name;
+		this.age = age;
+		this.createuserId = createuserId;
+		this.createdateTime = createdateTime;
+		this.updateuserId = updateuserId;
+		this.updatedateTime = updatedateTime;
+	}
 	public int getStudentid() {
 		return studentid;
 	}

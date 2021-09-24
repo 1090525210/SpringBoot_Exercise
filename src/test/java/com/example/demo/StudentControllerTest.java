@@ -4,16 +4,19 @@ import static org.mockito.Mockito.mockitoSession;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.aspectj.lang.annotation.Before;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,48 +30,83 @@ import com.accenture.springexercise.mybatis.SimpleApplication;
 import com.accenture.springexercise.mybatis.controller.StudentControllerRest;
 import com.accenture.springexercise.mybatis.entity.StudentEntity;
 import com.accenture.springexercise.mybatis.service.StudentService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 
-@RunWith(SpringRunner.class)
+
+
+
+@ExtendWith(SpringExtension.class)
+
 @SpringBootTest(classes = SimpleApplication.class)
 //测试环境使用，用来表示测试环境使用的ApplicationContext将是WebApplicationContext类型的
 @WebAppConfiguration
 public class StudentControllerTest {
+	private MockMvc mockMvc;
 
-  @Autowired
-  private MockMvc mockMvc;
-  private WebApplicationContext webApplicationContext;
+	@Autowired
+	private WebApplicationContext webApplicationContext;
   
-  //模拟出一个userService
-  @MockBean
-  private StudentService stService;
 
-  @Before
-  public void setUp() throws Exception{
-      //MockMvcBuilders.webAppContextSetup(WebApplicationContext context)：指定WebApplicationContext，将会从该上下文获取相应的控制器并得到相应的MockMvc；
-      mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();//建议使用这种
-  }
-  
-  @Test
-  public void selectAllTest() throws Exception {
-	  List<StudentEntity> list = new ArrayList<>();
-      StudentEntity st1 = new StudentEntity(1, "John");
-      StudentEntity st2 = new StudentEntity(2, "Jack");
-      StudentEntity st3 = new StudentEntity(3, "Jackson");
-       
-      list.add(st1);
-      list.add(st2);
-      list.add(st3);
-      Mockito.when(stService.selectAll()).thenReturn(list);
 
-      MvcResult mvcResult= mockMvc.perform(MockMvcRequestBuilders.get("/student/retrieve")
-              .accept(MediaType.APPLICATION_JSON))
-              .andExpect(MockMvcResultMatchers.status().isOk())             //等同于Assert.assertEquals(200,status);
-              .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))  
-              .andExpect(MockMvcResultMatchers.jsonPath("$.student_id").value(1))     //等同于 Assert.assertEquals("hello lvgang",content);
-              .andDo(MockMvcResultHandlers.print())
-              .andReturn();
-  }
+	@BeforeEach
+	public void setUp() throws Exception{
+		mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();//建议使用这种
+	}
+	
+	@Test
+	public void selectAllTest() throws Exception {
+		String responseString = mockMvc.perform(MockMvcRequestBuilders.get("/student/retrieve")).andReturn().getResponse().getContentAsString();
+		System.out.println("result : "+responseString);
+		
+	}
+	
+	@Test
+	public void selectbyIdTest() throws Exception{
+		String responseString = mockMvc.perform(MockMvcRequestBuilders
+				.get("/student/retrieve-by-id/4"))
+				.andReturn().getResponse().getContentAsString();
+		System.out.println("result : "+responseString);
+	}
+	
+	@Test
+	public void updateTest() throws Exception{
+		StudentEntity st = new StudentEntity(1,"Tom",31,1,"2021-9-24",3,"2021-9-25");
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+		java.lang.String requestJson = ow.writeValueAsString(st);
+
+		
+		
+		String responseString = mockMvc.perform(MockMvcRequestBuilders
+				.put("/student/update").contentType(MediaType.APPLICATION_JSON).content(requestJson))
+				.andReturn().getResponse().getContentAsString();
+		System.out.println("result : "+responseString);
+	}
+	
+	@Test
+	public void insertTest() throws Exception{
+		StudentEntity st = new StudentEntity(23,"Tom",30,1,"2021-9-24",3,"2021-9-25");
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+		java.lang.String requestJson = ow.writeValueAsString(st);
+
+		String responseString = mockMvc.perform(MockMvcRequestBuilders
+				.post("/student/insert").contentType(MediaType.APPLICATION_JSON).content(requestJson))
+				.andReturn().getResponse().getContentAsString();
+		System.out.println("result : "+responseString);
+	}
+	
+	@Test
+	public void deleteTest() throws Exception{
+		String responseString = mockMvc.perform(MockMvcRequestBuilders
+				.delete("/student/delete/21"))
+				.andReturn().getResponse().getContentAsString();
+		System.out.println("result : "+responseString);
+	}
+	
+	
 
 }
 

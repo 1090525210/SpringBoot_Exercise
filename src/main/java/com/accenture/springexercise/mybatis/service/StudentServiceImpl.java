@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -27,11 +29,11 @@ public class StudentServiceImpl implements StudentService{
 	
 	/**
      * 
-     * @Title: selectAll
-     * @Description: override the function of selecting all the StudentEntity in the database by calling the function of mapper object.
+     * override the function of selecting all the StudentEntity in the database by calling the function of mapper object.
      * @return A list of all StudentEntity objects in the database. 
      */
 	@Override
+	@Cacheable()
     public List<StudentEntity> selectAll(){
         List<StudentEntity> list = new ArrayList<>();
         list = stMapper.selectAll();
@@ -39,13 +41,12 @@ public class StudentServiceImpl implements StudentService{
     }
  
 	/**
-     * @Title: selectbyId
-     * @Description: select the StudentEntity object with this id from the cache. If it can't find in the cache, then search the database.
+     * select the StudentEntity object with this id from the cache. If it can't find in the cache, then search the database.
      * @param id The id is used to select the student with this id.
      * @return A StudentEntity object whose Id is the parameter id.
      */
 	@Override
-	@Cacheable()
+	@Cacheable(key = "#id")
     public StudentEntity selectbyId(Integer id) {
 		System.out.println("Success!");
     	StudentEntity st = new StudentEntity();
@@ -54,33 +55,34 @@ public class StudentServiceImpl implements StudentService{
     }
 	
 	/**
-     * @Title: update
-     * @Description: update the information of this student according to the id, implementing the transaction management. 
+     * update the information of this student according to the id, implementing the transaction management. 
      * @param id The id of the student in the database whose information needs to be updated.
      * @param name The name of this id will be updated. 
      * @param age The age of this id will be updated.
      * @return The number of students have been updated.
      */
     @Override
+    @CachePut(key = "#st.studentid")
     @Transactional(propagation = Propagation.REQUIRED,rollbackFor = {IOException.class, InvalidClassException.class},noRollbackFor = {JsonMappingException.class})
-    public int update(Integer id, String name,Integer age) {
-        int res = stMapper.update(id, name,age);
+    public StudentEntity update(StudentEntity st) {
+        int res = stMapper.update(st);
         // throw new RuntimeException(“I’m wrong,I will be rollback!");
-        return res;
+        return st;
     }
-
+    
 	
     @Override
+    @CachePut(key = "#st.studentid")
     @Transactional(propagation = Propagation.REQUIRED,rollbackFor = {IOException.class, InvalidClassException.class},noRollbackFor = {JsonMappingException.class})
-    public int insert(Integer id, String name,Integer age) {
-        int res = stMapper.insert(id, name,age);
+    public int insert(StudentEntity st) {
+        int res = stMapper.insert(st);
         // throw new RuntimeException(“I’m wrong,I will be rollback!");
         return res;
     }
 
     @Override
+    @CacheEvict(key = "#id")
     public int delete(Integer id){
-        
     	int res = stMapper.delete(id);
         return res;
     }

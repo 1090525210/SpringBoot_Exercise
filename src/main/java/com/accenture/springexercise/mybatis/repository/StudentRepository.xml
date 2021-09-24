@@ -8,10 +8,10 @@
       SELECT  *  FROM  student_info where student_id = #{id}
     </select> 
     <update id="update" >
-      UPDATE student_info set name = #{name}, age= #{age} where student_id=#{id}
+      UPDATE student_info set name = #{name}, age= #{age}, create_user_id = #{createuserId}, create_datetime = #{createdateTime}, update_user_id = #{updateuserId}, update_datetime=#{updatedateTime} where student_id=#{studentid}
     </update>
     <insert id="insert" parameterType="com.accenture.springexercise.mybatis.entity.StudentEntity" >
-        insert into student_info(student_id,name,age) values (#{id},#{name},#{age});
+        insert into student_info(student_id,name,age,create_user_id,create_datetime,update_user_id,update_datetime) values (#{studentid},#{name},#{age},#{createuserId},#{createdateTime},#{updateuserId},#{updatedateTime});
     </insert>
     <delete id="delete" parameterType="integer" >
         delete from student_info where student_id=#{id};

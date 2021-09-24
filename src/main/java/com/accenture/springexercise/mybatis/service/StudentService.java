@@ -6,8 +6,7 @@ import com.accenture.springexercise.mybatis.entity.StudentEntity;
 
 
 /**
- * @ClassName StudentService
- * @Description A service interface to implement the service logic. 
+ * A service interface to implement the service logic. 
  * @author jiazhen.ruan
  *
  */
@@ -16,7 +15,7 @@ public interface StudentService {
 	
 	List<StudentEntity> selectAll();
 	StudentEntity selectbyId(Integer id);
-	int update(Integer id, String name, Integer age);
-	int insert(Integer id, String name, Integer age);
+	StudentEntity update(StudentEntity st);
+	int insert(StudentEntity st);
 	int delete(Integer id);
 }
